@@ -16,42 +16,42 @@ func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
 	var ret *ListNode
 	var prev *ListNode
 
-	n1 := l1
-	n2 := l2
-	sum := 0
-	value := 0
-	carry := 0
+	next := 0
 
 	for ;; {
+		var current *ListNode = nil
+		sum := 0
+
+		// increment & fetch current value
+		if l1 != nil {
+			// reuse
+			current = l1
+			sum += l1.Val
+			l1 = l1.Next
+		}
+		if l2 != nil {
+			// reuse
+			current = l2
+			sum += l2.Val
+			l2 = l2.Next
+		}
+
 		// check exit condition
-		if n1 == nil && n2 == nil {
+		if current == nil {
 			break
 		}
 
-		// increment & fetch current value
-		v1 := 0
-		if n1 != nil {
-			v1 = n1.Val
-			n1 = n1.Next
-		}
-		v2 := 0
-		if n2 != nil {
-			v2 = n2.Val
-			n2 = n2.Next
-		}
-
 		// calc sum
-		sum = v1 + v2 + carry
-		carry = sum/10
-		if carry > 0 {
-			value = sum - 10
+		sum += next
+		if sum > 9 {
+			next = 1
+			current.Val = sum - 10
 		} else {
-			value = sum
+			next = 0
+			current.Val = sum
 		}
 
 		// set current pointer
-		current := new(ListNode)
-		current.Val = value
 		if prev != nil {
 			prev.Next = current
 		} else {
@@ -60,10 +60,9 @@ func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
 		prev = current
 	}
 
-	if carry > 0 {
-		current := new(ListNode)
-		current.Val = 1
-		prev.Next = current
+	if next == 1 {
+		prev.Next = new(ListNode)
+		prev.Next.Val = 1
 	}
 
 	return ret;
