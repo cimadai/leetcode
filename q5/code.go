@@ -1,71 +1,68 @@
 package q5
 
-import (
-	"fmt"
-	"math"
-)
-
-func main() {
-	//bcdef g fedcb
-	//fmt.Println(longestPalindrome("abcda"))//a
-	//fmt.Println(longestPalindrome("bb"))//bb
-
-	fmt.Println(longestPalindrome("civilwartestingwhetherthatnaptionoranynartionsoconceivedandsodedicatedcanlongendureWeareqmetonagreatbattlefiemldoftzhatwarWehavecometodedicpateaportionofthatfieldasafinalrestingplaceforthosewhoheregavetheirlivesthatthatnationmightliveItisaltogetherfangandproperthatweshoulddothisButinalargersensewecannotdedicatewecannotconsecratewecannothallowthisgroundThebravelmenlivinganddeadwhostruggledherehaveconsecrateditfaraboveourpoorponwertoaddordetractTgheworldadswfilllittlenotlenorlongrememberwhatwesayherebutitcanneverforgetwhattheydidhereItisforusthelivingrathertobededicatedheretotheulnfinishedworkwhichtheywhofoughtherehavethusfarsonoblyadvancedItisratherforustobeherededicatedtothegreattdafskremainingbeforeusthatfromthesehonoreddeadwetakeincreaseddevotiontothatcauseforwhichtheygavethelastpfullmeasureofdevotionthatweherehighlyresolvethatthesedeadshallnothavediedinvainthatthisnationunsderGodshallhaveanewbirthoffreedomandthatgovernmentofthepeoplebythepeopleforthepeopleshallnotperishfromtheearth"))
-
-	fmt.Println(longestPalindrome("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabcaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
-	//longestPalindrome("zkxy")
-}
-
-func isSame(r1 []rune, r2 []rune) bool {
-	for i1, i2 := 0, len(r2)-1; i2 >= 0; i1, i2 = i1+1, i2-1 {
+func getLongestMatchLength(r1 []rune, r2 []rune) int {
+	match := 0
+	for i1, i2 := len(r1) - 1, 0; i1 >= 0; i1, i2, match = i1-1, i2+1, match + 1 {
 		if r1[i1] != r2[i2] {
-			return false
+			break
 		}
 	}
-	return true
+	return match
 }
 
 func longestPalindrome(s string) string {
 	runes := []rune(s)
-
-	begin := 0
 	original := len(runes)
-	length := original
-	var r1 []rune
-	var r2 []rune
-	var m rune
-	for ;; {
-		if (length == 1) {
-			r1 = []rune("")
-			r2 = []rune("")
-			m = runes[0]
-			break
-		}
-
-		half := float64(length) / 2.0
-		h1 := int(half)
-		h2 := int(math.Ceil(half))
-		if h1 != h2 {
-			m = runes[begin+h1]
-		} else {
-			m = 0
-		}
-		r1 = runes[begin:begin+h1]
-		r2 = runes[begin+h2:begin+h1+h2]
-		if isSame(r1, r2) {
-			break
-		}
-		if h2+h1+begin == original {
-			begin = 0
-			length -= 1
-		} else {
-			begin += 1
-		}
+	if original == 1 {
+		return s
 	}
 
-	if m == 0 {
-		return string(r1) + string(r2)
-	} else {
-		return string(r1) + string(m) + string(r2)
+	longestLen := 0
+	leng := (original * 2) - 1
+	from := 0
+	end := 0
+	for i := 1; i < leng - 1; i++ {
+		isOdd := (i & 1) == 1
+		var leftLen int
+		var rightLen int
+		var rightFrom int
+		if isOdd {
+			leftLen = (i + 1) / 2
+			rightFrom = leftLen
+			rightLen = original - leftLen
+		} else {
+			leftLen = i / 2
+			rightFrom = leftLen + 1
+			rightLen = original - leftLen - 1
+		}
+		var minimumLen int
+		if leftLen > rightLen {
+			minimumLen = rightLen
+		} else {
+			minimumLen = leftLen
+		}
+		probableLongest := rightFrom - leftLen + minimumLen * 2
+
+		if longestLen >= probableLongest {
+			// すでに知ってる長さよりも短いので確かめる必要が無い
+			continue
+		}
+
+		//fmt.Printf("i = %d, leftLen = %d, rightLen = %d, rightFrom = %d, minimumLen = %d\n", i, leftLen, rightLen, rightFrom, minimumLen)
+		r1 := runes[leftLen - minimumLen : leftLen]
+		r2 := runes[rightFrom : rightFrom + minimumLen]
+		longestMatch := getLongestMatchLength(r1, r2)
+		f := leftLen - longestMatch
+		e := rightFrom + longestMatch
+		longest := e - f
+
+		if longestLen < longest {
+			// すでに知ってる長さよりも長いので改める
+			longestLen = longest
+			from = f
+			end = e
+		}
+		//fmt.Printf("longestLen = %d, r1 = %s, r2 = %s\n", longestLen, string(r1), string(r2))
 	}
+	return string(runes[from:end])
 }
