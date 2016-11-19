@@ -6,6 +6,8 @@ import (
 )
 
 func TestCode(t *testing.T) {
+	assert.Equal(t, 1, myAtoi("1a"))
+	assert.Equal(t, 0, myAtoi(""))
 	assert.Equal(t, 1, myAtoi("+1"))
 	assert.Equal(t, 123, myAtoi("123"))
 	assert.Equal(t, 10, myAtoi("0x0A"))
@@ -21,8 +23,8 @@ func TestCode(t *testing.T) {
 	assert.Equal(t, -2147483648, myAtoi("-9223372036854775809"))
 }
 
-//func BenchmarkCode(b *testing.B) {
-//	for i := 0; i < b.N; i++ {
-//		reverse(1000000003)
-//	}
-//}
+func BenchmarkCode(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		myAtoi("  -0012a42")
+	}
+}
